@@ -1,11 +1,14 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React from "react";
+import tw from "twrnc";
+
+import ThemedView from "@/components/themed-view";
 
 const Home = () => {
   return (
-    <View>
-      <Text>Home</Text>
-    </View>
+    <ThemedView>
+      <View style={tw`flex-1 pt-3 gap-y-3`}></View>
+    </ThemedView>
   );
 };
 
