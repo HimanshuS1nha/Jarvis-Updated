@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import React, { useCallback, useState } from "react";
 import tw from "twrnc";
 import { FlashList } from "@shopify/flash-list";
@@ -8,21 +8,14 @@ import ThemedView from "@/components/themed-view";
 import Input from "@/components/input";
 import Message from "@/components/message";
 
+import { useTheme } from "@/hooks/use-theme";
+
 import type { MessageType } from "@/types";
 
 const Home = () => {
-  const [messages, setMessages] = useState<MessageType[]>([
-    {
-      id: 1,
-      by: "user",
-      content: "Hi",
-    },
-    {
-      id: 2,
-      by: "model",
-      content: "Hello",
-    },
-  ]);
+  const theme = useTheme((state) => state.theme);
+
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setisLoading] = useState(false);
 
@@ -30,22 +23,48 @@ const Home = () => {
   return (
     <ThemedView>
       <View style={tw`flex-1 pt-3 gap-y-3`}>
-        <FlashList
-          data={messages}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => {
-            return <Message message={item} />;
-          }}
-          estimatedItemSize={100}
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={() => {
-            return (
-              <View style={tw`w-[35%] px-5 pb-4 pt-2`}>
-                {isLoading && <LoadingDots bounceHeight={8} />}
-              </View>
-            );
-          }}
-        />
+        {messages.length > 0 ? (
+          <FlashList
+            data={messages}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => {
+              return <Message message={item} />;
+            }}
+            estimatedItemSize={100}
+            showsVerticalScrollIndicator={false}
+            ListFooterComponent={() => {
+              return (
+                <View style={tw`w-[35%] px-5 pb-4 pt-2`}>
+                  {isLoading && <LoadingDots bounceHeight={8} />}
+                </View>
+              );
+            }}
+          />
+        ) : (
+          <View style={tw`flex-1 justify-center items-center gap-y-6`}>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={tw`size-32 rounded-full`}
+            />
+
+            <View style={tw`gap-y-1 items-center`}>
+              <Text
+                style={tw`text-5xl font-bold ${
+                  theme === "light" ? "text-black" : "text-white"
+                }`}
+              >
+                Jarvis
+              </Text>
+              <Text
+                style={tw`${
+                  theme === "light" ? "text-gray-700" : "text-gray-300"
+                } font-medium`}
+              >
+                Your personal AI assistant
+              </Text>
+            </View>
+          </View>
+        )}
 
         <Input
           value={input}
