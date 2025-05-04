@@ -19,7 +19,7 @@ const Input = ({
   const theme = useTheme((state) => state.theme);
   return (
     <View
-      style={tw`p-2 px-3 rounded-t-3xl gap-y-4 ${
+      style={tw`p-2.5 rounded-t-3xl gap-y-4 ${
         theme === "light" ? "bg-gray-200" : "bg-gray-800"
       }`}
     >
