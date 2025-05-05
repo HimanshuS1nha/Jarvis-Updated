@@ -4,25 +4,24 @@ import tw from "twrnc";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
 import { useChatsModal } from "@/hooks/use-chats-modal";
 import { useTheme } from "@/hooks/use-theme";
+import { useSelectedChat } from "@/hooks/use-selected-chat";
+
+import { db } from "@/libs/db";
+
+import { chatsTable } from "@/db/schema";
 
 const ChatsModal = () => {
   const { isVisible, setIsVisible } = useChatsModal();
 
   const theme = useTheme((state) => state.theme);
 
-  const dummyChats = [
-    {
-      id: 1,
-      title: "React roadmap",
-    },
-    {
-      id: 2,
-      title: "React native roadmap",
-    },
-  ];
+  const selectedChat = useSelectedChat((state) => state.selectedChat);
+
+  const { data: chats } = useLiveQuery(db.select().from(chatsTable));
   return (
     <Modal
       transparent
@@ -72,18 +71,26 @@ const ChatsModal = () => {
             </View>
 
             <FlashList
-              data={dummyChats}
+              data={chats}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => {
                 return (
                   <Pressable
                     style={tw`flex-row justify-between mb-6 ${
-                      theme === "light" ? "bg-gray-200" : "bg-gray-800"
+                      selectedChat!.id === item.id
+                        ? "bg-indigo-600"
+                        : theme === "light"
+                        ? "bg-gray-200"
+                        : "bg-gray-800"
                     } p-3 rounded-lg`}
                   >
                     <Text
                       style={tw`font-medium ${
-                        theme === "light" ? "text-black" : "text-white"
+                        selectedChat!.id === item.id
+                          ? "text-white"
+                          : theme === "light"
+                          ? "text-black"
+                          : "text-white"
                       }`}
                     >
                       {item.title.length > 25
@@ -96,14 +103,26 @@ const ChatsModal = () => {
                         <MaterialIcons
                           name="edit"
                           size={20}
-                          color={theme === "light" ? "black" : "white"}
+                          color={
+                            selectedChat!.id === item.id
+                              ? "white"
+                              : theme === "light"
+                              ? "black"
+                              : "white"
+                          }
                         />
                       </Pressable>
                       <Pressable>
                         <FontAwesome
                           name="trash"
                           size={20}
-                          color={theme === "light" ? "black" : "white"}
+                          color={
+                            selectedChat!.id === item.id
+                              ? "white"
+                              : theme === "light"
+                              ? "black"
+                              : "white"
+                          }
                         />
                       </Pressable>
                     </View>
