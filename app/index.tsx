@@ -4,6 +4,7 @@ import {
   Image,
   ActivityIndicator,
   useColorScheme,
+  Alert,
 } from "react-native";
 import React, { useEffect } from "react";
 import tw from "twrnc";
@@ -14,8 +15,11 @@ import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import ThemedView from "@/components/themed-view";
 
 import { useTheme } from "@/hooks/use-theme";
+import { useSelectedChat } from "@/hooks/use-selected-chat";
 
 import { db } from "@/libs/db";
+
+import { chatsTable } from "@/db/schema";
 
 import migrations from "../drizzle/migrations";
 
@@ -27,6 +31,9 @@ export default function Index() {
   const theme = useTheme((state) => state.theme);
   const setTheme = useTheme((state) => state.setTheme);
 
+  const selectedChat = useSelectedChat((state) => state.selectedChat);
+  const setSelectedChat = useSelectedChat((state) => state.setSelectedChat);
+
   const { success, error } = useMigrations(db, migrations);
 
   useEffect(() => {
@@ -37,7 +44,33 @@ export default function Index() {
         setTheme(colorScheme as "light" | "dark");
       }
 
-      timeout = setTimeout(() => router.replace("/home"), 400);
+      db.select()
+        .from(chatsTable)
+        .then((chats) => {
+          if (chats.length === 0) {
+            db.insert(chatsTable)
+              .values({})
+              .returning({ id: chatsTable.id, title: chatsTable.title })
+              .then(([createdChat]) => {
+                setSelectedChat(createdChat);
+                timeout = setTimeout(() => router.replace("/home"), 400);
+              })
+              .catch(() =>
+                Alert.alert(
+                  "Error",
+                  "Some error occured. Please try again later!"
+                )
+              );
+          } else {
+            if (!selectedChat) {
+              setSelectedChat(chats[0]);
+            }
+            timeout = setTimeout(() => router.replace("/home"), 400);
+          }
+        })
+        .catch(() =>
+          Alert.alert("Error", "Some error occured. Please try again later!")
+        );
     }
 
     return () => {
