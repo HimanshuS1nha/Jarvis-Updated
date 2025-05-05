@@ -1,0 +1,123 @@
+import { View, Text, Modal, Pressable, Image } from "react-native";
+import React from "react";
+import tw from "twrnc";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
+
+import { useChatsModal } from "@/hooks/use-chats-modal";
+import { useTheme } from "@/hooks/use-theme";
+
+const ChatsModal = () => {
+  const { isVisible, setIsVisible } = useChatsModal();
+
+  const theme = useTheme((state) => state.theme);
+
+  const dummyChats = [
+    {
+      id: 1,
+      title: "React roadmap",
+    },
+    {
+      id: 2,
+      title: "React native roadmap",
+    },
+  ];
+  return (
+    <Modal
+      transparent
+      visible={isVisible}
+      onRequestClose={() => setIsVisible(false)}
+      animationType="fade"
+      statusBarTranslucent
+    >
+      <SafeAreaView style={tw`flex-1`}>
+        <View
+          style={tw`flex-1 ${
+            theme === "light" ? "bg-gray-100/80" : "bg-gray-900/80"
+          }`}
+        >
+          <View
+            style={tw`w-[300px] h-full gap-y-6 p-3 shadow ${
+              theme === "light"
+                ? "bg-white shadow-black"
+                : "bg-black shadow-white"
+            }`}
+          >
+            <View style={tw`flex-row justify-between items-center`}>
+              <Pressable onPress={() => setIsVisible(false)}>
+                <AntDesign
+                  name="close"
+                  size={26}
+                  color={theme === "light" ? "black" : "white"}
+                />
+              </Pressable>
+
+              <View style={tw`flex-row items-center gap-x-2.5`}>
+                <Image
+                  source={require("../assets/images/logo.png")}
+                  style={tw`rounded-full size-9`}
+                />
+
+                <Text
+                  style={tw`text-lg font-bold ${
+                    theme === "light" ? "text-black" : "text-white"
+                  }`}
+                >
+                  Jarvis
+                </Text>
+              </View>
+
+              <View />
+            </View>
+
+            <FlashList
+              data={dummyChats}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => {
+                return (
+                  <Pressable
+                    style={tw`flex-row justify-between mb-6 ${
+                      theme === "light" ? "bg-gray-200" : "bg-gray-800"
+                    } p-3 rounded-lg`}
+                  >
+                    <Text
+                      style={tw`font-medium ${
+                        theme === "light" ? "text-black" : "text-white"
+                      }`}
+                    >
+                      {item.title.length > 25
+                        ? item.title.substring(0, 25) + "..."
+                        : item.title}
+                    </Text>
+
+                    <View style={tw`flex-row gap-x-3 items-center`}>
+                      <Pressable>
+                        <MaterialIcons
+                          name="edit"
+                          size={20}
+                          color={theme === "light" ? "black" : "white"}
+                        />
+                      </Pressable>
+                      <Pressable>
+                        <FontAwesome
+                          name="trash"
+                          size={20}
+                          color={theme === "light" ? "black" : "white"}
+                        />
+                      </Pressable>
+                    </View>
+                  </Pressable>
+                );
+              }}
+              estimatedItemSize={50}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+      </SafeAreaView>
+    </Modal>
+  );
+};
+
+export default ChatsModal;
