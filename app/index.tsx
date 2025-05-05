@@ -9,10 +9,15 @@ import React, { useEffect } from "react";
 import tw from "twrnc";
 import * as SplashScreen from "expo-splash-screen";
 import { router } from "expo-router";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 
 import ThemedView from "@/components/themed-view";
 
 import { useTheme } from "@/hooks/use-theme";
+
+import { db } from "@/libs/db";
+
+import migrations from "../drizzle/migrations";
 
 SplashScreen.hideAsync();
 
@@ -22,19 +27,35 @@ export default function Index() {
   const theme = useTheme((state) => state.theme);
   const setTheme = useTheme((state) => state.setTheme);
 
-  useEffect(() => {
-    if (!theme) {
-      setTheme(colorScheme as "light" | "dark");
-    }
+  const { success, error } = useMigrations(db, migrations);
 
-    const timeout = setTimeout(() => {
-      router.replace("/home");
-    }, 400);
+  useEffect(() => {
+    let timeout: number;
+
+    if (success) {
+      if (!theme) {
+        setTheme(colorScheme as "light" | "dark");
+      }
+
+      timeout = setTimeout(() => router.replace("/home"), 400);
+    }
 
     return () => {
       clearTimeout(timeout);
     };
-  }, []);
+  }, [success, error]);
+
+  if (error) {
+    return (
+      <ThemedView>
+        <View style={tw`flex-1 justify-center items-center`}>
+          <Text style={tw`font-medium text-red-500`}>
+            Error in migrating database
+          </Text>
+        </View>
+      </ThemedView>
+    );
+  }
   return (
     <ThemedView>
       <View style={tw`flex-1 items-center justify-center gap-y-6`}>
