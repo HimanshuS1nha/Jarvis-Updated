@@ -3,3 +3,8 @@ export type MessageType = {
   content: string;
   by: "user" | "model";
 };
+
+export type ChatType = {
+  id: number;
+  title: string;
+};
