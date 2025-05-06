@@ -5,6 +5,7 @@ import { Stack } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 
 import ChatsModal from "@/components/chats-modal";
+import EditChatTitleModal from "@/components/edit-chat-title-modal";
 
 import { useTheme } from "@/hooks/use-theme";
 import { useChatsModal } from "@/hooks/use-chats-modal";
@@ -71,6 +72,8 @@ const HomeLayout = () => {
       />
 
       <ChatsModal />
+
+      <EditChatTitleModal />
     </>
   );
 };

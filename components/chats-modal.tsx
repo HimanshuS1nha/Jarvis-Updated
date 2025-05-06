@@ -64,26 +64,6 @@ const ChatsModal = () => {
       Alert.alert("Error", "Error while deleting chat.");
     },
   });
-
-  // const handleDeeteChat = useCallback(async (id: number) => {
-  //   await db.delete(chatsTable).where(eq(chatsTable.id, id));
-
-  //   const chats = await db.select().from(chatsTable);
-  //   if (chats.length === 0) {
-  //     const [createdChat] = await db.insert(chatsTable).values({}).returning({
-  //       id: chatsTable.id,
-  //       title: chatsTable.title,
-  //     });
-
-  //     setSelectedChat(createdChat);
-
-  //     router.replace("/home");
-  //   } else {
-  //     setSelectedChat(chats[0]);
-
-  //     router.replace("/home");
-  //   }
-  // }, []);
   return (
     <Modal
       transparent
