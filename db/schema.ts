@@ -3,6 +3,7 @@ import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const chatsTable = sqliteTable("chats", {
   id: int().primaryKey({ autoIncrement: true }),
   title: text().notNull().default("New chat"),
+  isTitleGenerated: int().default(0).notNull(),
 });
 
 export const messagesTable = sqliteTable("messages", {
