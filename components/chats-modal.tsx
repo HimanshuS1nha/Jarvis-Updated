@@ -7,6 +7,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { eq } from "drizzle-orm";
 import { router } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
 
 import { useChatsModal } from "@/hooks/use-chats-modal";
 import { useTheme } from "@/hooks/use-theme";
@@ -37,25 +38,52 @@ const ChatsModal = () => {
     Alert.alert("Error", "Error occured while fetching chats");
   }
 
-  const handleDeleteChat = useCallback(async (id: number) => {
-    await db.delete(chatsTable).where(eq(chatsTable.id, id));
+  const { mutate: handleDeleteChat, isPending } = useMutation({
+    mutationKey: ["delete-chat"],
+    mutationFn: async (id: number) => {
+      await db.delete(chatsTable).where(eq(chatsTable.id, id));
 
-    const chats = await db.select().from(chatsTable);
-    if (chats.length === 0) {
-      const [createdChat] = await db.insert(chatsTable).values({}).returning({
-        id: chatsTable.id,
-        title: chatsTable.title,
-      });
+      const chats = await db.select().from(chatsTable);
 
-      setSelectedChat(createdChat);
+      if (chats.length === 0) {
+        const [createdChat] = await db.insert(chatsTable).values({}).returning({
+          id: chatsTable.id,
+          title: chatsTable.title,
+        });
 
+        return createdChat;
+      } else {
+        return chats[0];
+      }
+    },
+    onSuccess: (data) => {
+      setSelectedChat(data);
       router.replace("/home");
-    } else {
-      setSelectedChat(chats[0]);
+    },
+    onError: (error) => {
+      Alert.alert("Error", "Error while deleting chat.");
+    },
+  });
 
-      router.replace("/home");
-    }
-  }, []);
+  // const handleDeeteChat = useCallback(async (id: number) => {
+  //   await db.delete(chatsTable).where(eq(chatsTable.id, id));
+
+  //   const chats = await db.select().from(chatsTable);
+  //   if (chats.length === 0) {
+  //     const [createdChat] = await db.insert(chatsTable).values({}).returning({
+  //       id: chatsTable.id,
+  //       title: chatsTable.title,
+  //     });
+
+  //     setSelectedChat(createdChat);
+
+  //     router.replace("/home");
+  //   } else {
+  //     setSelectedChat(chats[0]);
+
+  //     router.replace("/home");
+  //   }
+  // }, []);
   return (
     <Modal
       transparent
@@ -151,7 +179,10 @@ const ChatsModal = () => {
                           }
                         />
                       </Pressable>
-                      <Pressable onPress={() => handleDeleteChat(item.id)}>
+                      <Pressable
+                        onPress={() => handleDeleteChat(item.id)}
+                        disabled={isPending}
+                      >
                         <FontAwesome
                           name="trash"
                           size={20}

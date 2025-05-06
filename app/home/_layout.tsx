@@ -41,7 +41,7 @@ const HomeLayout = () => {
               <Pressable onPress={() => setIsChatsModalVisible(true)}>
                 <Feather
                   name="menu"
-                  size={24}
+                  size={22}
                   color={theme === "light" ? "black" : "white"}
                 />
               </Pressable>
@@ -53,14 +53,14 @@ const HomeLayout = () => {
                 <Pressable onPress={toggleTheme}>
                   <Feather
                     name={theme === "light" ? "sun" : "moon"}
-                    size={24}
+                    size={22}
                     color={theme === "light" ? "black" : "white"}
                   />
                 </Pressable>
                 <Pressable>
                   <Feather
                     name="plus-circle"
-                    size={24}
+                    size={22}
                     color={theme === "light" ? "black" : "white"}
                   />
                 </Pressable>
