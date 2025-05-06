@@ -1,4 +1,4 @@
-import { View, Text, Modal, Pressable, Image } from "react-native";
+import { View, Text, Modal, Pressable, Image, Alert } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,7 +21,10 @@ const ChatsModal = () => {
 
   const selectedChat = useSelectedChat((state) => state.selectedChat);
 
-  const { data: chats } = useLiveQuery(db.select().from(chatsTable));
+  const { data: chats, error } = useLiveQuery(db.select().from(chatsTable));
+  if (error) {
+    Alert.alert("Error", "Error occured while fetching chats");
+  }
   return (
     <Modal
       transparent

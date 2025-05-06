@@ -1,25 +1,54 @@
-import { View, Text, Image } from "react-native";
-import React, { useCallback, useState } from "react";
+import { View, Text, Image, Alert } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import tw from "twrnc";
 import { FlashList } from "@shopify/flash-list";
 import LoadingDots from "react-native-loading-dots";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { eq } from "drizzle-orm";
 
 import ThemedView from "@/components/themed-view";
 import Input from "@/components/input";
 import Message from "@/components/message";
 
 import { useTheme } from "@/hooks/use-theme";
+import { useSelectedChat } from "@/hooks/use-selected-chat";
+
+import { db } from "@/libs/db";
+
+import { messagesTable } from "@/db/schema";
 
 import type { MessageType } from "@/types";
 
 const Home = () => {
   const theme = useTheme((state) => state.theme);
 
+  const selectedChat = useSelectedChat((state) => state.selectedChat);
+
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setisLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { data, error } = useLiveQuery(
+    db
+      .select({
+        id: messagesTable.id,
+        by: messagesTable.by,
+        content: messagesTable.content,
+      })
+      .from(messagesTable)
+      .where(eq(messagesTable.chatId, selectedChat!.id))
+  );
+  if (error) {
+    Alert.alert("Error", "Error occured while fetching messages");
+  }
 
   const handleChangeInput = useCallback((value: string) => setInput(value), []);
+
+  useEffect(() => {
+    if (data) {
+      setMessages(data);
+    }
+  }, [data]);
   return (
     <ThemedView>
       <View style={tw`flex-1 pt-3 gap-y-3`}>
