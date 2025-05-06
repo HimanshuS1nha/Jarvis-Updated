@@ -1,10 +1,12 @@
 import { View, Text, Modal, Pressable, Image, Alert } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import tw from "twrnc";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { eq } from "drizzle-orm";
+import { router } from "expo-router";
 
 import { useChatsModal } from "@/hooks/use-chats-modal";
 import { useTheme } from "@/hooks/use-theme";
@@ -20,11 +22,32 @@ const ChatsModal = () => {
   const theme = useTheme((state) => state.theme);
 
   const selectedChat = useSelectedChat((state) => state.selectedChat);
+  const setSelectedChat = useSelectedChat((state) => state.setSelectedChat);
 
   const { data: chats, error } = useLiveQuery(db.select().from(chatsTable));
   if (error) {
     Alert.alert("Error", "Error occured while fetching chats");
   }
+
+  const handleDeleteChat = useCallback(async (id: number) => {
+    await db.delete(chatsTable).where(eq(chatsTable.id, id));
+
+    const chats = await db.select().from(chatsTable);
+    if (chats.length === 0) {
+      const [createdChat] = await db.insert(chatsTable).values({}).returning({
+        id: chatsTable.id,
+        title: chatsTable.title,
+      });
+
+      setSelectedChat(createdChat);
+
+      router.replace("/home");
+    } else {
+      setSelectedChat(chats[0]);
+
+      router.replace("/home");
+    }
+  }, []);
   return (
     <Modal
       transparent
@@ -115,7 +138,7 @@ const ChatsModal = () => {
                           }
                         />
                       </Pressable>
-                      <Pressable>
+                      <Pressable onPress={() => handleDeleteChat(item.id)}>
                         <FontAwesome
                           name="trash"
                           size={20}
