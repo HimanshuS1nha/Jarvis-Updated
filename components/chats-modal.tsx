@@ -11,6 +11,7 @@ import { router } from "expo-router";
 import { useChatsModal } from "@/hooks/use-chats-modal";
 import { useTheme } from "@/hooks/use-theme";
 import { useSelectedChat } from "@/hooks/use-selected-chat";
+import { useEditChatTitleModal } from "@/hooks/use-edit-chat-title-modal";
 
 import { db } from "@/libs/db";
 
@@ -23,6 +24,13 @@ const ChatsModal = () => {
 
   const selectedChat = useSelectedChat((state) => state.selectedChat);
   const setSelectedChat = useSelectedChat((state) => state.setSelectedChat);
+
+  const setIsEditChatTitleModalVisible = useEditChatTitleModal(
+    (state) => state.setIsVisible
+  );
+  const setEditChatTitleModalChat = useEditChatTitleModal(
+    (state) => state.setChat
+  );
 
   const { data: chats, error } = useLiveQuery(db.select().from(chatsTable));
   if (error) {
@@ -125,7 +133,12 @@ const ChatsModal = () => {
                     </Text>
 
                     <View style={tw`flex-row gap-x-3 items-center`}>
-                      <Pressable>
+                      <Pressable
+                        onPress={() => {
+                          setEditChatTitleModalChat(item);
+                          setIsEditChatTitleModalVisible(true);
+                        }}
+                      >
                         <MaterialIcons
                           name="edit"
                           size={20}
