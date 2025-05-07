@@ -76,7 +76,7 @@ const Home = () => {
     mutationFn: async () => {
       const { data } = await axios.post(
         `${process.env.EXPO_PUBLIC_URL}/api/generate-response`,
-        { input, messages }
+        { input, messages, image: selectedImage?.base64 }
       );
 
       return { response: data.response };

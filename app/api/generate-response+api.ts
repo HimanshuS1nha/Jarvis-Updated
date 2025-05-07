@@ -18,12 +18,13 @@ const validator = z.object({
       by: z.enum(["model", "user"]),
     })
   ),
+  image: z.string().optional(),
 });
 
 export const POST = async (req: Request) => {
   try {
     const data = await req.json();
-    const { input, messages } = await validator.parseAsync(data);
+    const { input, messages, image } = await validator.parseAsync(data);
 
     const result = await model
       .startChat({
@@ -36,7 +37,11 @@ export const POST = async (req: Request) => {
           ],
         })),
       })
-      .sendMessage(input);
+      .sendMessage(
+        image
+          ? [input, { inlineData: { data: image, mimeType: "image/png" } }]
+          : input
+      );
 
     return Response.json({ response: result.response.text() }, { status: 200 });
   } catch (error) {
