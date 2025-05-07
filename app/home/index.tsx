@@ -100,9 +100,13 @@ const Home = () => {
             inverted
             ListHeaderComponent={() => {
               return (
-                <View style={tw`w-[35%] px-5 pb-4 pt-2`}>
-                  {!isPending && <LoadingDots bounceHeight={8} />}
-                </View>
+                <>
+                  {isPending && (
+                    <View style={tw`w-[35%] px-5 pb-4 pt-2`}>
+                      <LoadingDots bounceHeight={8} />
+                    </View>
+                  )}
+                </>
               );
             }}
           />
