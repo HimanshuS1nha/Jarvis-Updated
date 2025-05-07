@@ -7,4 +7,5 @@ export type MessageType = {
 export type ChatType = {
   id: number;
   title: string;
+  isTitleGenerated: number;
 };

@@ -5,6 +5,8 @@ import { FlashList } from "@shopify/flash-list";
 import LoadingDots from "react-native-loading-dots";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { eq } from "drizzle-orm";
+import { useMutation } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 
 import ThemedView from "@/components/themed-view";
 import Input from "@/components/input";
@@ -26,7 +28,6 @@ const Home = () => {
 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const { data, error } = useLiveQuery(
     db
@@ -44,14 +45,49 @@ const Home = () => {
 
   const handleChangeInput = useCallback((value: string) => setInput(value), []);
 
+  const { mutate: handleSend, isPending } = useMutation({
+    mutationKey: ["generate-response"],
+    mutationFn: async () => {
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_URL}/api/generate-response`,
+        { input, messages }
+      );
+
+      return { response: data.response };
+    },
+    onMutate: async () => {
+      await db.insert(messagesTable).values({
+        by: "user",
+        content: input,
+        chatId: selectedChat!.id,
+      });
+
+      setInput("");
+    },
+    onSuccess: async (data) => {
+      await db.insert(messagesTable).values({
+        by: "model",
+        content: data.response,
+        chatId: selectedChat!.id,
+      });
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "Error in generating response");
+      }
+    },
+  });
+
   useEffect(() => {
     if (data) {
-      setMessages(data);
+      setMessages(data.toReversed());
     }
   }, [data]);
   return (
     <ThemedView>
-      <View style={tw`flex-1 pt-3 gap-y-3`}>
+      <View style={tw`flex-1 pt-3`}>
         {messages.length > 0 ? (
           <FlashList
             data={messages}
@@ -61,10 +97,11 @@ const Home = () => {
             }}
             estimatedItemSize={100}
             showsVerticalScrollIndicator={false}
-            ListFooterComponent={() => {
+            inverted
+            ListHeaderComponent={() => {
               return (
                 <View style={tw`w-[35%] px-5 pb-4 pt-2`}>
-                  {isLoading && <LoadingDots bounceHeight={8} />}
+                  {!isPending && <LoadingDots bounceHeight={8} />}
                 </View>
               );
             }}
@@ -94,11 +131,10 @@ const Home = () => {
             </View>
           </View>
         )}
-
         <Input
           value={input}
           onChangeText={handleChangeInput}
-          onSend={() => {}}
+          onSend={handleSend}
         />
       </View>
     </ThemedView>
