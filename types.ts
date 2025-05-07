@@ -9,3 +9,9 @@ export type ChatType = {
   title: string;
   isTitleGenerated: number;
 };
+
+export type ImageType = {
+  filename: string;
+  base64: string;
+  uri: string;
+};

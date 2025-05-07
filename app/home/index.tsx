@@ -19,7 +19,7 @@ import { db } from "@/libs/db";
 
 import { chatsTable, messagesTable } from "@/db/schema";
 
-import type { MessageType } from "@/types";
+import type { ImageType, MessageType } from "@/types";
 
 const Home = () => {
   const theme = useTheme((state) => state.theme);
@@ -28,6 +28,7 @@ const Home = () => {
 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
+  const [selectedImage, setSelectedImage] = useState<ImageType | null>(null);
 
   const { data, error } = useLiveQuery(
     db
@@ -168,6 +169,8 @@ const Home = () => {
           value={input}
           onChangeText={handleChangeInput}
           onSend={handleSend}
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
         />
       </View>
     </ThemedView>
