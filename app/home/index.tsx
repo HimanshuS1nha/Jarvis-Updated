@@ -17,7 +17,7 @@ import { useSelectedChat } from "@/hooks/use-selected-chat";
 
 import { db } from "@/libs/db";
 
-import { messagesTable } from "@/db/schema";
+import { chatsTable, messagesTable } from "@/db/schema";
 
 import type { MessageType } from "@/types";
 
@@ -45,6 +45,31 @@ const Home = () => {
 
   const handleChangeInput = useCallback((value: string) => setInput(value), []);
 
+  const { mutate: handleGenerateTitle } = useMutation({
+    mutationKey: ["generate-title"],
+    mutationFn: async (message: string) => {
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_URL}/api/generate-title`,
+        { message }
+      );
+
+      return data as { response: string };
+    },
+    onSuccess: async (data) => {
+      await db
+        .update(chatsTable)
+        .set({ title: data.response, isTitleGenerated: 1 })
+        .where(eq(chatsTable.id, selectedChat!.id));
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.data.error) {
+        Alert.alert("Error", error.response.data.error);
+      } else {
+        Alert.alert("Error", "Error in generating response");
+      }
+    },
+  });
+
   const { mutate: handleSend, isPending } = useMutation({
     mutationKey: ["generate-response"],
     mutationFn: async () => {
@@ -61,6 +86,10 @@ const Home = () => {
         content: input,
         chatId: selectedChat!.id,
       });
+
+      if (!selectedChat?.isTitleGenerated) {
+        handleGenerateTitle(input);
+      }
 
       setInput("");
     },

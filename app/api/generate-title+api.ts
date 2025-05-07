@@ -22,7 +22,10 @@ export const POST = async (req: Request) => {
       `Give me a title for the thread that starts with the following message: ${message}. Tthe title should ideally be atmost 3 to 4 words. Give me only a single title that too as a string purely. Do not include any formatting whatsoever.`
     );
 
-    const response = result.response.text().replaceAll('"', "");
+    const response = result.response
+      .text()
+      .replaceAll('"', "")
+      .replaceAll("\n", "");
 
     return Response.json({ response }, { status: 200 });
   } catch (error) {

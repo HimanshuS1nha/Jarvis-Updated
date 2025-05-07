@@ -49,6 +49,7 @@ const ChatsModal = () => {
         const [createdChat] = await db.insert(chatsTable).values({}).returning({
           id: chatsTable.id,
           title: chatsTable.title,
+          isTitleGenerated: chatsTable.isTitleGenerated,
         });
 
         return createdChat;
@@ -60,7 +61,7 @@ const ChatsModal = () => {
       setSelectedChat(data);
       router.replace("/home");
     },
-    onError: (error) => {
+    onError: () => {
       Alert.alert("Error", "Error while deleting chat.");
     },
   });
