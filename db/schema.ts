@@ -10,6 +10,7 @@ export const messagesTable = sqliteTable("messages", {
   id: int().primaryKey({ autoIncrement: true }),
   by: text("by", { enum: ["model", "user"] }).notNull(),
   content: text("content").notNull(),
+  image: text("image"),
 
   chatId: int()
     .references(() => chatsTable.id, { onDelete: "cascade" })
