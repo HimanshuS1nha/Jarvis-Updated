@@ -14,6 +14,7 @@ import Message from "@/components/message";
 
 import { useTheme } from "@/hooks/use-theme";
 import { useSelectedChat } from "@/hooks/use-selected-chat";
+import { useLinks } from "@/hooks/use-links";
 
 import { db } from "@/libs/db";
 
@@ -25,6 +26,8 @@ const Home = () => {
   const theme = useTheme((state) => state.theme);
 
   const selectedChat = useSelectedChat((state) => state.selectedChat);
+
+  const links = useLinks((state) => state.links);
 
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
@@ -78,7 +81,7 @@ const Home = () => {
     mutationFn: async () => {
       const { data } = await axios.post(
         `${process.env.EXPO_PUBLIC_URL}/api/generate-response`,
-        { input, messages, image: selectedImage?.base64 }
+        { input, messages, image: selectedImage?.base64, links }
       );
 
       return { response: data.response };

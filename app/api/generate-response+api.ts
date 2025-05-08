@@ -19,12 +19,21 @@ const validator = z.object({
     })
   ),
   image: z.string().optional(),
+  links: z.array(z.string()),
 });
 
 export const POST = async (req: Request) => {
   try {
     const data = await req.json();
-    const { input, messages, image } = await validator.parseAsync(data);
+    const { input, messages, image, links } = await validator.parseAsync(data);
+
+    let updatedInput = input;
+
+    if (links.length > 0) {
+      updatedInput += ` You can also use these API URLs if needed to answer the user's query. Links (separated by and): ${links.join(
+        " and "
+      )}.`;
+    }
 
     const result = await model
       .startChat({
@@ -39,8 +48,11 @@ export const POST = async (req: Request) => {
       })
       .sendMessage(
         image
-          ? [input, { inlineData: { data: image, mimeType: "image/png" } }]
-          : input
+          ? [
+              updatedInput,
+              { inlineData: { data: image, mimeType: "image/png" } },
+            ]
+          : updatedInput
       );
 
     return Response.json({ response: result.response.text() }, { status: 200 });
