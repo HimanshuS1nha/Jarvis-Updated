@@ -61,7 +61,7 @@ const Home = () => {
         .update(chatsTable)
         .set({ title: data.response, isTitleGenerated: 1 })
         .where(eq(chatsTable.id, selectedChat!.id));
-        
+
       setSelectedImage(null);
     },
     onError: (error) => {
@@ -88,6 +88,7 @@ const Home = () => {
         by: "user",
         content: input,
         chatId: selectedChat!.id,
+        image: selectedImage?.uri,
       });
 
       if (!selectedChat?.isTitleGenerated) {

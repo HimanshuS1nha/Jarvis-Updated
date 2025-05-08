@@ -1,4 +1,4 @@
-import { View, Text, Image } from "react-native";
+import { View, Image } from "react-native";
 import React from "react";
 import tw from "twrnc";
 import Markdown from "react-native-markdown-display";
@@ -24,13 +24,20 @@ const Message = ({ message }: { message: MessageType }) => {
             : "flex-row gap-x-3"
         } gap-y-2.5`}
       >
-        {message.by === "model" && (
+        {message.by === "model" ? (
           <Image
             source={require("../assets/images/logo.png")}
             style={tw`size-5.5 rounded-full mt-2.5`}
           />
+        ) : (
+          message.image && (
+            <Image
+              source={{ uri: message.image }}
+              style={tw`w-64 h-48 rounded-lg`}
+              resizeMode="stretch"
+            />
+          )
         )}
-
         <Markdown
           style={
             theme === "light"
