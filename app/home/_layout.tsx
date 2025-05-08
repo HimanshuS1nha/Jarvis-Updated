@@ -7,6 +7,7 @@ import { router } from "expo-router";
 
 import ChatsModal from "@/components/chats-modal";
 import EditChatTitleModal from "@/components/edit-chat-title-modal";
+import AddLinkModal from "@/components/add-link-modal";
 
 import { useTheme } from "@/hooks/use-theme";
 import { useChatsModal } from "@/hooks/use-chats-modal";
@@ -94,6 +95,8 @@ const HomeLayout = () => {
       <ChatsModal />
 
       <EditChatTitleModal />
+
+      <AddLinkModal />
     </>
   );
 };

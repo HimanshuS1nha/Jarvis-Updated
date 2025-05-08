@@ -4,6 +4,8 @@ import tw from "twrnc";
 import { Ionicons, FontAwesome, AntDesign } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 
+import ShowAddedLinks from "./show-added-links";
+
 import { useTheme } from "@/hooks/use-theme";
 
 import type { ImageType } from "@/types";
@@ -47,6 +49,8 @@ const Input = ({
         theme === "light" ? "bg-gray-200" : "bg-gray-800"
       }`}
     >
+      <ShowAddedLinks />
+
       {selectedImage && (
         <View style={tw`flex-row gap-x-3 items-center`}>
           <Image
