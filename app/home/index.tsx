@@ -1,4 +1,4 @@
-import { View, Text, Image, Alert } from "react-native";
+import { View, Text, Image, Alert, Keyboard } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import tw from "twrnc";
 import { FlashList } from "@shopify/flash-list";
@@ -39,6 +39,7 @@ const Home = () => {
         id: messagesTable.id,
         by: messagesTable.by,
         content: messagesTable.content,
+        image: messagesTable.image,
       })
       .from(messagesTable)
       .where(eq(messagesTable.chatId, selectedChat!.id))
@@ -64,8 +65,6 @@ const Home = () => {
         .update(chatsTable)
         .set({ title: data.response, isTitleGenerated: 1 })
         .where(eq(chatsTable.id, selectedChat!.id));
-
-      setSelectedImage(null);
     },
     onError: (error) => {
       if (error instanceof AxiosError && error.response?.data.error) {
@@ -79,6 +78,8 @@ const Home = () => {
   const { mutate: handleSend, isPending } = useMutation({
     mutationKey: ["generate-response"],
     mutationFn: async () => {
+      Keyboard.dismiss();
+
       const { data } = await axios.post(
         `${process.env.EXPO_PUBLIC_URL}/api/generate-response`,
         { input, messages, image: selectedImage?.base64, links }
@@ -98,6 +99,7 @@ const Home = () => {
         handleGenerateTitle(input);
       }
 
+      setSelectedImage(null);
       setInput("");
     },
     onSuccess: async (data) => {

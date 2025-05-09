@@ -1,5 +1,5 @@
 import { View, Text, Modal, Pressable, Image, Alert } from "react-native";
-import React, { useCallback } from "react";
+import React from "react";
 import tw from "twrnc";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
@@ -73,7 +73,7 @@ const ChatsModal = () => {
       animationType="fade"
       statusBarTranslucent
     >
-      <SafeAreaView style={tw`flex-1`}>
+      <View style={tw`flex-1 mt-10.5`}>
         <View
           style={tw`flex-1 ${
             theme === "light" ? "bg-gray-100/80" : "bg-gray-900/80"
@@ -126,6 +126,11 @@ const ChatsModal = () => {
                         ? "bg-gray-200"
                         : "bg-gray-800"
                     } p-3 rounded-lg`}
+                    onPress={() => {
+                      setSelectedChat(item);
+                      router.replace("/home");
+                      setIsVisible(false);
+                    }}
                   >
                     <Text
                       style={tw`font-medium ${
@@ -185,7 +190,7 @@ const ChatsModal = () => {
             />
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };

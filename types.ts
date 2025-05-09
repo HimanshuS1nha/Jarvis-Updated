@@ -2,7 +2,7 @@ export type MessageType = {
   id: number;
   content: string;
   by: "user" | "model";
-  image?: string;
+  image: string | null;
 };
 
 export type ChatType = {
